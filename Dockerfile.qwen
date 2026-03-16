@@ -1,0 +1,24 @@
+# hub.szaic.com/sjtu/sjtu_yukai-wangchencheng_qwen:v1.1
+FROM hub.szaic.com/sjtu-base/sjtu_base-pytorch-for-ascend:cann8.2rc1-torch2.6.0-py3.10
+
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirrors.aliyun.com/ubuntu/|g' /etc/apt/sources.list \
+ && sed -i 's|http://security.ubuntu.com/ubuntu/|http://mirrors.aliyun.com/ubuntu/|g' /etc/apt/sources.list \
+ && apt-get update \
+ && apt-get install -y git curl wget build-essential ffmpeg \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+ && pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn
+
+# COPY transformers-qwen /tmp/transformers-qwen
+# RUN pip install /tmp/transformers-qwen
+
+RUN pip install qwen-omni-utils -U
+RUN pip install accelerate 
+RUN pip install transformers==4.52.3
+RUN pip install kaldiio 
+RUN pip install sentence_transformers==5.2.0 torchaudio==2.6.0
+
+ENV HF_ENDPOINT=https://hf-mirror.com
+
+WORKDIR /workspace

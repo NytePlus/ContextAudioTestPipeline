@@ -1,0 +1,19 @@
+# hub.szaic.com/sjtu/sjtu_yukai-wangchencheng_qwenasr:v1.0
+FROM hub.szaic.com/sjtu-base/sjtu_base-pytorch-for-ascend:cann8.2rc1-torch2.6.0-py3.10
+
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirrors.aliyun.com/ubuntu/|g' /etc/apt/sources.list \
+ && sed -i 's|http://security.ubuntu.com/ubuntu/|http://mirrors.aliyun.com/ubuntu/|g' /etc/apt/sources.list \
+ && apt-get update \
+ && apt-get install -y git curl wget build-essential ffmpeg \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+ && pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn
+
+RUN pip install transformers==4.57.6
+RUN pip install -U qwen-asr
+RUN pip install kaldiio 
+
+ENV HF_ENDPOINT=https://hf-mirror.com
+
+WORKDIR /workspace

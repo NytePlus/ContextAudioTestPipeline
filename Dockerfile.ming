@@ -1,0 +1,9 @@
+# hub.szaic.com/sjtu/sjtu_yukai-wangchencheng_ming:v1.0
+FROM hub.szaic.com/sjtu/sjtu_yukai-wangchencheng_qwen:v1.1
+
+RUN pip install openai-whisper==20240930
+
+ENV HF_ENDPOINT=https://hf-mirror.com
+ENV PYTHONPATH="/workspace:/workspace/pipelines/LongCatFlashOmni:/workspace/pipelines/Ming:$PYTHONPATH"
+
+WORKDIR /workspace
