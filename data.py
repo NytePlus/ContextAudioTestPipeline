@@ -28,7 +28,7 @@ def ark_to_base64_audio(ark_path: str, audio_format="wav") -> str:
     return f"data:audio/{audio_format};base64,{audio_base64}"
 
 class Data:
-    def __init__(self, name, root_dir, audio_format):
+    def __init__(self, name, root_dir, audio_format, part=None):
         self.root_dir = root_dir
         path = Path(root_dir) / name
         self.audio_format = audio_format
@@ -48,19 +48,26 @@ class Data:
             raise ValueError(f"Unsupported file format: {path}")
         
         self.format_data = []
-        for item in self.data:
+        for item in self.data[:part]:
             id = self.get_id(item)
             ppt_path = self.get_pptpath(item)
-            wav_path = self.get_wavpath(item, audio_format)
-            hotword = item.get('hotword', item.get('history', ''))
+            audio_path = self.get_audiopath(item, audio_format)
+            context_type = 'none'
+            if item.get('history', ''):
+                context = item.get('history', '')
+                context_type = 'history'
+            else:
+                context = item.get('hotword', '')
+                context_type = 'hotword'
             gt = self.get_gt(item)
             
             self.format_data.append({
                 'id': id,
                 "ppt_path": ppt_path,
-                "audio_path": wav_path,
-                "hotword": hotword,
-                "gt": gt
+                "audio_path": audio_path,
+                "context": context,
+                "gt": gt,
+                "context_type": context_type
             })
 
     def get_id(self, item):
@@ -75,15 +82,19 @@ class Data:
             return item['image']
         return ''
 
-    def get_wavpath(self, item, audio_format):
-        if "wav_path" in item:
-            assert audio_format == 'wav'
+    def get_audiopath(self, item, audio_format):
+        if audio_format == 'wav':
+            assert "wav_path" in item
             return os.path.join(self.root_dir, item["wav_path"])
-        elif "path" in item:
-            if audio_format == 'ark':
-                return item['path']
-            elif audio_format == 'base64':
-                return item['path'] # 在加载时编码
+        elif audio_format == 'ark':
+            assert "path" in item
+            return item['path']
+        elif audio_format == 'base64':
+            assert "path" in item
+            return item['path'] # 在加载时编码
+        elif audio_format == 'url':
+            assert "path" in item
+            return item['path']
         return ''
     
     def get_gt(self, item):
@@ -98,13 +109,17 @@ class Data:
 
     def __iter__(self):
         for item in self.format_data:
-            wav_path = ark_to_base64_audio(item['audio_path'])
-            item['audio_path'] = wav_path
+            audio_path = item['audio_path']
+            if self.audio_format == 'ark':
+                audio_path = ark_to_base64_audio(audio_path)
+            item['audio_path'] = audio_path
             yield item
     
     def __getitem__(self, idx):
         item = self.format_data[idx]
-        wav_path = ark_to_base64_audio(item['audio_path'])
+        wav_path = item['audio_path']
+        if self.audio_format == 'ark':
+            wav_path = ark_to_base64_audio(wav_path)
         item['audio_path'] = wav_path
         return item
 
@@ -130,7 +145,7 @@ class Out:
                         self.processed_ids.add(processed_id)
 
     def is_processed(self, id):
-        return id in self.processed_ids
+        return str(id) in self.processed_ids
     
     def append(self, ids, preds):
         with open(self.output_path, "a", encoding="utf-8") as f:

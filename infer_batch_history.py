@@ -1,17 +1,17 @@
 from tqdm import tqdm
 from data import Data, Out
-from template.prompt import history_prompt
-from pipelines.desta import DestaPipeline
+from template.prompt import no_prompt
+from pipelines.doubao import DoubaoPipeline
 from template.ans_extract import extract_asr_from_think
 
-data_dir = '/aistor/sjtu/hpc_stor01/home/wangchencheng/data/slidespeech'
-input_json = "test_oracle_v1/cot/multitask.jsonl"
+data_dir = '/hpc_stor03/sjtu_home/chencheng.wang/data/canvas'
+input_json = "multitask.jsonl"
 output_pred = "output_pred"
 batch_size = 8
 
-data = Data(input_json, data_dir, audio_format='ark')
+data = Data(input_json, data_dir, audio_format='url')
 out = Out(output_pred)
-pipe = DestaPipeline()
+pipe = DoubaoPipeline()
 
 batch_ids, batch_convs = [], []
 all_ids, all_preds = [], []
@@ -21,8 +21,8 @@ for item in tqdm(data, desc="推理中"):
     if out.is_processed(item['id']):
         continue
 
-    prompt = history_prompt
-    prompt = prompt.format(item['hotword'])
+    prompt = no_prompt
+    prompt = prompt.format(item['context'])
     conversation = pipe.chat_template(prompt, item['audio_path'])
 
     batch_convs.append(conversation)
@@ -41,7 +41,7 @@ if batch_convs:
 
 for id, pred in zip(all_ids, all_preds):
     try:
-        asr = extract_asr_from_think(pred)
+        asr = pred
         ids.append(id)
         preds.append(asr)
     except:

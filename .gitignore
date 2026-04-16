@@ -4,3 +4,5 @@ score/
 pipelines/DeSTA25_Audio/
 pipelines/LongCatFlashOmni/
 pipelines/Ming/
+
+**/__pycache__/

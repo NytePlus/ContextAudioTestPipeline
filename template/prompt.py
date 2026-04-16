@@ -1,3 +1,5 @@
+no_prompt = '{}'
+
 # gt: 同时也能提高肺部的通气功能和氧气的利用效率，长期坚持有氧运动可以降低心血管疾病的风险，改善血脂水平，控制体重，增强免疫系统功能。
 default_qwen_sys_prompt = "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech."
 

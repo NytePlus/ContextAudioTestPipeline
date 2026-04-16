@@ -5,9 +5,9 @@ dcsync -u wangchencheng -d s2 -s "/aistor/sjtu/hpc_stor01/home/wangchencheng/mod
 docker build -f Dockerfile.qwen_asr -t hub.szaic.com/sjtu/sjtu_yukai-wangchencheng_qwenasr:v1.1 .
 
 docker run -it --rm -e ASCEND_VISIBLE_DEVICES=0-7 \
- -v /aistor/sjtu/hpc_stor01/home/wangchencheng/models:/models \
- -v /aistor/sjtu/hpc_stor01/home/wangchencheng/workspace/AudioOmniTest:/workspace \
- hub.szaic.com/sjtu/sjtu_yukai-wangchencheng_qwenasr:v1.1
+ -v /hpc_stor03/sjtu_home/chencheng.wang/models:/models \
+ -v /hpc_stor03/sjtu_home/chencheng.wang/workspace/ContextAudioTestPipeline:/workspace \
+ docker.v2.aispeech.com/sjtu/sjtu_yukai-yiweiguo-metric:v1.0
 
 modelscope download --model Qwen/Qwen2.5-Omni-7B
 
